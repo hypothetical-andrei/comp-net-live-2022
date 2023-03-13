@@ -3,9 +3,25 @@ import socket
 
 HOST = '127.0.0.1'
 
+is_running = True
+
+def handle_client(client_socket, client):
+  with client:
+    while True:
+      if client == None:
+        break
+      data = client.recv(1024)
+      if not data:
+        break
+      client_socket.sendall(data)
+
 def process_connection(server_socket, client_socket):
-  # TODO implement the tunneling logic
-  pass
+  while is_running:
+    client, addr  = server_socket.accept()
+    print(f'{addr} has connected')
+    client_thread = threading.Thread(target=handle_client, args=(client_socket, client))
+    client_thread.start()
+    
 
 def tunnel(source_port, destination_port):
   server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,4 +61,4 @@ def main():
         tunnels.append((source_port, destination_port))
 
 if __name__ == '__main__':
-  pass
+  main()
